@@ -10468,6 +10468,16 @@
                                         status = "ok";
                                         type = "ext4";
                                 };
+
+                                vendor {
+                                        compatible = "android,vendor";
+                                        dev = "/dev/block/platform/soc/7824900.sdhci/by-name/cust";
+                                        fsmgr_flags = "wait";
+                                        mnt_flags = "ro,barrier=1,discard";
+                                        status = "ok";
+                                        type = "ext4";
+                                };
+
                         };
                 };
         };	
