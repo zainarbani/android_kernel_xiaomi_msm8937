@@ -18,6 +18,9 @@
 
 #include "input-event-codes.h"
 
+#define KEY_ANT_CONNECT         0x292
+#define KEY_ANT_UNCONNECT       0x293
+
 /*
  * The event structure itself
  */
