@@ -34,6 +34,7 @@
 
 #define VSYNC_DELAY msecs_to_jiffies(17)
 
+char g_lcd_id[128];
 DEFINE_LED_TRIGGER(bl_led_trigger);
 
 void mdss_dsi_panel_pwm_cfg(struct mdss_dsi_ctrl_pdata *ctrl)
@@ -1700,6 +1701,14 @@ static bool mdss_dsi_cmp_panel_reg_v2(struct mdss_dsi_ctrl_pdata *ctrl)
 			if (ctrl->return_buf[i] !=
 				ctrl->status_value[group + i])
 				break;
+
+			/*to check the panel register */
+			if(strstr(g_lcd_id, "tm otm1901a") != NULL) {
+				if (ctrl->return_buf[1] !=
+					ctrl->status_value[group + 1]) {
+					printk("hml read 0x1d = 0x%x\n",ctrl->return_buf[1]);
+				}
+			}
 		}
 
 		if (i == len)
@@ -2839,6 +2848,41 @@ error:
 	return -EINVAL;
 }
 
+static int msm_parse_lcd_name(struct device_node *node) {
+	const char* name;
+	name=of_get_property(node,"qcom,mdss-dsi-panel-name", NULL);
+	strcpy(g_lcd_id,name);
+	return 0;
+}
+
+static ssize_t msm_fb_lcd_name(struct device *dev,
+		struct device_attribute *attr, char *buf)
+ {
+	ssize_t ret = 0;
+	sprintf(buf, "%s\n", g_lcd_id);
+	ret = strlen(buf) + 1;
+	return ret;
+ }
+
+
+static DEVICE_ATTR(lcd_name,0664,msm_fb_lcd_name,NULL);
+static struct kobject *msm_lcd_name;
+static int msm_lcd_name_create_sysfs(void){
+	int ret;
+	msm_lcd_name=kobject_create_and_add("android_lcd",NULL);
+	if(msm_lcd_name==NULL) {
+		pr_info("msm_lcd_name_create_sysfs_ failed\n");
+		ret=-ENOMEM;
+		return ret;
+	}
+	ret=sysfs_create_file(msm_lcd_name,&dev_attr_lcd_name.attr);
+	if(ret) {
+	pr_info("%s failed \n",__func__);
+	kobject_del(msm_lcd_name);
+	}
+	return 0;
+}
+char g_lcd_id[128];
 int mdss_dsi_panel_init(struct device_node *node,
 	struct mdss_dsi_ctrl_pdata *ctrl_pdata,
 	int ndx)
@@ -2864,6 +2908,14 @@ int mdss_dsi_panel_init(struct device_node *node,
 		pr_info("%s: Panel Name = %s\n", __func__, panel_name);
 		strlcpy(&pinfo->panel_name[0], panel_name, MDSS_MAX_PANEL_LEN);
 	}
+	rc = msm_parse_lcd_name(node);
+	if (rc) {
+		pr_err("%s:%d panel parse_lcd_name failed\n", __func__, __LINE__);
+		return rc;
+	}
+
+	strcpy(g_lcd_id, panel_name);
+
 	rc = mdss_panel_parse_dt(node, ctrl_pdata);
 	if (rc) {
 		pr_err("%s:%d panel dt parse failed\n", __func__, __LINE__);
@@ -2884,5 +2936,6 @@ int mdss_dsi_panel_init(struct device_node *node,
 			mdss_dsi_panel_apply_display_setting;
 	ctrl_pdata->switch_mode = mdss_dsi_panel_switch_mode;
 	ctrl_pdata->panel_data.get_idle = mdss_dsi_panel_get_idle_mode;
+	msm_lcd_name_create_sysfs();
 	return 0;
 }
