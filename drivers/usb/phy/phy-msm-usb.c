@@ -104,7 +104,7 @@ module_param(lpm_disconnect_thresh , uint, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(lpm_disconnect_thresh,
 	"Delay before entering LPM on USB disconnect");
 
-static bool floated_charger_enable;
+static bool floated_charger_enable = 1;
 module_param(floated_charger_enable , bool, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(floated_charger_enable,
 	"Whether to enable floated charger");
@@ -2859,14 +2859,22 @@ static void msm_otg_sm_work(struct work_struct *w)
 					break;
 				case USB_FLOATED_CHARGER:
 					msm_otg_notify_charger(motg,
-							IDEV_CHG_MAX);
+							500);
 					otg->phy->state = OTG_STATE_B_CHARGER;
 					break;
 				case USB_CDP_CHARGER:
 					msm_otg_notify_charger(motg,
-							IDEV_CHG_MAX);
+							1500);
+					pm_runtime_get_sync(otg->phy->dev);
+					msm_otg_start_peripheral(otg, 1);
+					otg->phy->state =
+						OTG_STATE_B_PERIPHERAL;
+					mod_timer(&motg->chg_check_timer,
+							CHG_RECHECK_DELAY);
+					break;
 					/* fall through */
 				case USB_SDP_CHARGER:
+					msm_otg_notify_charger(motg, 500);
 					pm_runtime_get_sync(otg->phy->dev);
 					msm_otg_start_peripheral(otg, 1);
 					otg->phy->state =
