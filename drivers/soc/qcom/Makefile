@@ -106,6 +106,7 @@ obj-$(CONFIG_MSM_KERNEL_PROTECT) += kernel_protect.o
 obj-$(CONFIG_MSM_RTB) += msm_rtb-hotplug.o
 obj-$(CONFIG_MSM_REMOTEQDSS) += remoteqdss.o
 obj-$(CONFIG_QCOM_SMCINVOKE) += smcinvoke.o
+obj-y += serial_num.o
 obj-$(CONFIG_QCOM_EARLY_RANDOM)	+= early_random.o
 obj-$(CONFIG_MSM_HAB) += hab/
 obj-$(CONFIG_QCOM_QDSS_BRIDGE) += qdss_bridge.o
