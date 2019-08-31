@@ -182,6 +182,36 @@ config ARM64_DMA_USE_IOMMU
 	select ARM_HAS_SG_CHAIN
 	select NEED_SG_DMA_LENGTH
 
+config SPEAKER_EXT_PA
+	default y
+	bool "Speaker external PA"
+	help
+	    Support for external PA.
+
+config SPEAKER_EXT_PA_AW8738
+	default y
+	bool "Speaker external PA AW8738"
+	help
+	    Support for the AW8738.
+
+config KERNEL_CUSTOM_CM895
+	default n
+	    bool "Custom for hardware cm895_pcb"
+	    help
+	            Custom for cm895_pcb.
+
+config KERNEL_CUSTOM_L6200
+	default n
+	    bool "Custom for hardware l6200_pcb"
+	    help
+	            Custom for l6200_pcb.
+
+config KERNEL_CUSTOM_L6210
+	default n
+	    bool "Custom for hardware l6210_pcb"
+	    help
+	            Custom for l6210_pcb.
+				
 if ARM64_DMA_USE_IOMMU
 
 config ARM64_DMA_IOMMU_ALIGNMENT
@@ -755,6 +785,19 @@ config ARCH_WANT_HUGE_PMD_SHARE
 
 config HAVE_ARCH_TRANSPARENT_HUGEPAGE
 	def_bool y
+
+config UGGLITE
+	bool "Based on Platform msm8917"
+	def_bool ARCH_MSM8917
+
+config UGG
+	    bool "Based on Platform msm8937"
+
+config ULYSSE
+	    bool "Based on Platform msm8953"
+
+config UTER
+	    bool "Based on Platform msm8953"
 
 config ARCH_HAS_CACHE_LINE_SIZE
 	def_bool y
